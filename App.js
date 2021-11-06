@@ -4,6 +4,8 @@ import { StyleSheet, Text, View, TextInput, Button, Alert, ScrollView } from 're
 import Start from './components/Start';
 import Chat from './components/Chat';
 
+
+
 // import react native gesture handler
 import 'react-native-gesture-handler';
 

@@ -1,42 +1,92 @@
+// import { QuerySnapshot } from '@firebase/firestore';
 import React from 'react';
 import { View, Text, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { Bubble, GiftedChat } from 'react-native-gifted-chat'
+import { initializeApp } from 'firebase/app'; //???????
+
+  //Firebase 
+const firebase = require('firebase');
+require('firebase/firestore');
 
 export default class Chat extends React.Component {
   constructor(){
     super();
     this.state = {
       messages: [],
+      uid: 0,
+      loggedInText: "Please wait while you're getting logged in"
     }
-  }
+  
+
+      const firebaseConfig ={
+      apiKey: "AIzaSyARwinlu4lrb2iWF2d6HDI4_SdPl96NO90",
+      authDomain: "chat-app-1958c.firebaseapp.com",
+      projectId: "chat-app-1958c",
+      storageBucket: "chat-app-1958c.appspot.com",
+      messagingSenderId: "757390137378",
+      appId: "1:757390137378:web:0498d316e4e58c8d0ad27b",
+      measurementId: "G-MBQKE5VH2E"
+    }
+
+       // connecting to firebase
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  }  
+    
+  
 
   // Mounts the components
   componentDidMount(){
     let name = this.props.route.params.name;
     this.props.navigation.setOptions({ title: name });
+    this.referenceChatMessages = firebase.firestore().collection("messages")
+    this.unsubscribe = this.referenceChatMessages.onSnapshot(this.onCollectionUpdate)
 
-  // Sets the state of the MSG Array  
-    this.setState({
-      messages: [
-        {
-          _id: 1,
-          text: 'Hello developer',
-          createdAt: new Date(),
-          user: {
-            _id: 2,
-            name: 'React Native',
-            avatar: 'https://placeimg.com/140/140/any',
-          },
-         },
-         {
-          _id: 2,
-          text: `Welcome ${name}`,
-          createdAt: new Date(),
-          system: true,
-         },
-      ],
-    })
+    this.authUnsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
+      if (!user) {
+        await firebase.auth().signInAnonymously();
+      }
+    
+      //update user state with currently active user data
+      this.setState({
+        messages: [],
+        uid: user.uid,
+        loggedInText: 'Hello there',
+      });
+      this.unsubscribe = this.referenceChatMessages.orderBy("createdAt", "desc")
+      .onSnapshot(this.onCollectionUpdate);
+    });
+
+
+
+      onCollectionUpdate = (querySnapshot) => {
+        const messages = [];
+        //go through each document
+        querySnapshot.forEach((doc) => {
+          //get the querydoccumentsnapshots data
+          let data = doc.data();
+          messages.push({
+            _id: data._id,
+            text:data.text.toString(),
+            createdAt: data.createdAt.toDate(),
+            user: data.user,
+          })
+        })
+      // Sets the state of the MSG Array  
+        this.setState({
+        messages,
+        })
+      }
+
+
   }
+
+    //
+    componentWillUnmount() {
+      this.unsubscribe();
+      this.authUnsubscribe();
+    }
 
   // Message bubble customization ('yours')
   renderBubble(props){
@@ -52,6 +102,16 @@ export default class Chat extends React.Component {
     )
   }
 
+  addMessages(){
+    this.referenceChatMessages.add({
+      uid: this.state.uid,
+      _id: msg._id,
+      text: msg.text,
+      createdAt: msg.createdAt,
+      user: this.state.user,
+
+    })
+  }
   // Function that allows us to stack our new message on top of the older ones
   onSend(messages = []){
     this.setState(previousState => ({
