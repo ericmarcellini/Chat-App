@@ -2,11 +2,13 @@
 import React from 'react';
 import { View, Text, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { Bubble, GiftedChat } from 'react-native-gifted-chat'
-import { initializeApp } from 'firebase/app'; //???????
+import AsyncStorage from '@react-native-community/async-storage';
 
   //Firebase 
 const firebase = require('firebase');
 require('firebase/firestore');
+
+
 
 export default class Chat extends React.Component {
   constructor(){
@@ -16,9 +18,7 @@ export default class Chat extends React.Component {
       uid: 0,
       loggedInText: "Please wait while you're getting logged in"
     }
-  
-
-      const firebaseConfig ={
+    const firebaseConfig ={
       apiKey: "AIzaSyARwinlu4lrb2iWF2d6HDI4_SdPl96NO90",
       authDomain: "chat-app-1958c.firebaseapp.com",
       projectId: "chat-app-1958c",
@@ -27,14 +27,63 @@ export default class Chat extends React.Component {
       appId: "1:757390137378:web:0498d316e4e58c8d0ad27b",
       measurementId: "G-MBQKE5VH2E"
     }
-
-       // connecting to firebase
+       //connecting to firebase
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
     }
   }  
     
+  async getMessages(){
+    let messages = '';
+    try {
+      messages = await AsyncStorage.getItem('messages') || [];
+      this.setState({
+        messages: JSON.parse(messages)
+      });
+    } catch (error){
+      console.log(error.message);
+    }
+  }
+
+  async deleteMessages(){
+    try {
+      await AsyncStorage.removeItem('messages');
+      this.setState({
+        messages: []
+      })
+    } catch (error){
+      console.log(error.message)
+    }
+  }
+
+  addMessages(){
+    this.referenceChatMessages.add({
+      uid: this.state.uid,
+      _id: msg._id,
+      text: msg.text,
+      createdAt: msg.createdAt,
+      user: this.state.user,
+
+    })
+  }
+
+    // Function that allows us to stack our new message on top of the older ones
+  onSend(messages = []){
+    this.setState(previousState => ({
+      messages: GiftedChat.append(previousState.messages, messages),
+    }), () => {
+      this.saveMessages();
+    });
+  }
   
+  async saveMessages(){
+    try{
+      await AsyncStorage.setItem('messages', JSON.stringify(this.state.messages));
+    } catch (error){
+      console.log(error.message);
+    }
+  }
+
 
   // Mounts the components
   componentDidMount(){
@@ -79,7 +128,7 @@ export default class Chat extends React.Component {
         })
       }
 
-
+    this.getMessages();
   }
 
     //
@@ -100,23 +149,6 @@ export default class Chat extends React.Component {
       }} 
       />
     )
-  }
-
-  addMessages(){
-    this.referenceChatMessages.add({
-      uid: this.state.uid,
-      _id: msg._id,
-      text: msg.text,
-      createdAt: msg.createdAt,
-      user: this.state.user,
-
-    })
-  }
-  // Function that allows us to stack our new message on top of the older ones
-  onSend(messages = []){
-    this.setState(previousState => ({
-      messages: GiftedChat.append(previousState.messages, messages),
-    }))
   }
 
   render() {
