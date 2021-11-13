@@ -1,8 +1,10 @@
 // import { QuerySnapshot } from '@firebase/firestore';
 import React from 'react';
 import { View, Text, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
-import { Bubble, GiftedChat } from 'react-native-gifted-chat'
+import { Bubble, GiftedChat, InputToolbar } from 'react-native-gifted-chat'
 import AsyncStorage from '@react-native-community/async-storage';
+import NetInfo from '@react-native-community/netinfo';
+
 
   //Firebase 
 const firebase = require('firebase');
@@ -89,6 +91,15 @@ export default class Chat extends React.Component {
   componentDidMount(){
     let name = this.props.route.params.name;
     this.props.navigation.setOptions({ title: name });
+
+    NetInfo.fetch().then(connection => {
+      if (connection.isConnected){
+        console.log('online');
+      } else {
+        console.log('offline');
+      }
+    });
+
     this.referenceChatMessages = firebase.firestore().collection("messages")
     this.unsubscribe = this.referenceChatMessages.onSnapshot(this.onCollectionUpdate)
 
@@ -129,6 +140,8 @@ export default class Chat extends React.Component {
       }
 
     this.getMessages();
+
+
   }
 
     //
@@ -149,6 +162,16 @@ export default class Chat extends React.Component {
       }} 
       />
     )
+  }
+
+  //Doesn't render input bar if offline
+  renderInputToolbar(props){
+    if (this.state.isConnected === false){
+    } else {
+      return (
+        <InputToolbar {...props} />
+      )
+    }
   }
 
   render() {
