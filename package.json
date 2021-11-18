@@ -25,7 +25,11 @@
     "react-native-safe-area-context": "3.3.2",
     "react-native-screens": "~3.8.0",
     "react-native-web": "0.17.1",
-    "react-navigation": "^4.4.4"
+    "react-navigation": "^4.4.4",
+    "expo-permissions": "~13.0.3",
+    "expo-image-picker": "~11.0.3",
+    "expo-location": "~13.0.4",
+    "react-native-maps": "0.28.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"

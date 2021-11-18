@@ -1,10 +1,10 @@
-// import { QuerySnapshot } from '@firebase/firestore';
 import React from 'react';
-import { View, Text, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Platform, KeyboardAvoidingView } from 'react-native';
 import { Bubble, GiftedChat, InputToolbar } from 'react-native-gifted-chat'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
-import AsyncStorage from '@react-native-async-storage/async-storage'
-
+import CustomActions from './CustomActions';
+import MapView from 'react-native-maps';
 
   //Firebase 
 const firebase = require('firebase');
@@ -27,7 +27,7 @@ export default class Chat extends React.Component {
       messages: [],
       uid: 0,
       user: {
-        _id: 1,
+        _id: '',
         name: '',
         avatar:'',
       },
@@ -193,6 +193,33 @@ export default class Chat extends React.Component {
     }
   }
 
+  renderCustomActions = (props) => {
+    return <CustomActions {...props} />;
+  };
+
+  renderCustomView (props) {
+    const { currentMessage } = props;
+    if (currentMessage.location) {
+      return (
+          <MapView
+            style={{
+              width: 150,
+              height: 100,
+              borderRadius: 13,
+              margin: 3,
+            }}
+            region={{
+              latitude: currentMessage.location.latitude,
+              longitude: currentMessage.location.longitude,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            }}
+          />
+      );
+    }
+    return null;
+  }
+
   render() {
     let name = this.props.route.params.name; // OR ...
     // let { name } = this.props.route.params;
@@ -207,6 +234,8 @@ export default class Chat extends React.Component {
       renderInputToolbar={this.renderInputToolbar.bind(this)}
       messages={this.state.messages}
       onSend={messages => this.onSend(messages)}
+      renderActions={this.renderCustomActions}
+      renderCustomView={this.renderCustomView}
       user={{
         name: this.state.name,
         _id: this.state.user._id,
