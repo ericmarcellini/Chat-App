@@ -1,3 +1,4 @@
+
 import PropTypes from "prop-types";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -7,6 +8,7 @@ import * as Location from "expo-location";
 import firebase from 'firebase';
 import firestore from 'firebase';
 
+
 export default class CustomActions extends React.Component {
   imagePicker = async () => {
     // expo permission
@@ -15,7 +17,7 @@ export default class CustomActions extends React.Component {
       if (status === "granted") {
         // pick image
         const result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images, // only images are allowed
+          mediaTypes: ImagePicker.MediaTypeOptions.Images, 
         }).catch((error) => console.log(error));
         // canceled process
         if (!result.cancelled) {
@@ -71,6 +73,7 @@ export default class CustomActions extends React.Component {
       console.log(error.message);
     }
   };
+
 
   uploadImageFetch = async (uri) => {
     const blob = await new Promise((resolve, reject) => {

@@ -29,7 +29,9 @@
     "expo-permissions": "~13.0.3",
     "expo-image-picker": "~11.0.3",
     "expo-location": "~13.0.4",
-    "react-native-maps": "0.28.1"
+    "react-native-maps": "0.28.1",
+    "expo-camera": "~12.0.3",
+    "expo-media-library": "~13.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"
