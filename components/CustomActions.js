@@ -30,6 +30,7 @@ export default class CustomActions extends React.Component {
     }
   };
 
+  // this function allows us to open our camera and snap a pic
   takePhoto = async () => {
     const { status } = await Permissions.askAsync(
       Permissions.CAMERA,
@@ -51,6 +52,7 @@ export default class CustomActions extends React.Component {
     }
   };
 
+  // this function allows us to send our current location to the chat
   getLocation = async () => {
     try {
       const { status } = await Permissions.askAsync(Permissions.LOCATION);
@@ -74,7 +76,7 @@ export default class CustomActions extends React.Component {
     }
   };
 
-
+  // this function is in charge of uploading the images as a blob to firebase
   uploadImageFetch = async (uri) => {
     const blob = await new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
@@ -102,7 +104,7 @@ export default class CustomActions extends React.Component {
     return await snapshot.ref.getDownloadURL();
   };
 
-
+  // button press functionality 
   onActionPress = () => {
     const options = [
       "Choose From Library",
